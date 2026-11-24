@@ -18,7 +18,7 @@ node /path/to/portfolio-crew/scripts/check-scope.mjs --repo . --base HEAD --allo
 - 모션은 실제 휠·터치·버튼으로 진입하고 빠르게 되돌린다. 첫 렌더링 이후 전환 시작 시점, 클릭과 스크롤의 도착 상태, 고정되는 영역, 중복 전환, 축소 모션에서의 가독성을 확인한다. 해당한다면 내부 스크롤 방향과 바깥 페이지 스크롤을 구분한다.
 - 디자인·모션 변경은 데스크톱·모바일 캡처와 핵심 전환 녹화로 판단한다. 글이나 화면 위치를 검증하는 자동 검사와 함께 녹화를 재생해 체감 속도, 깜빡임, 끊김을 확인한다. 확인한 해상도, 브라우저, 축소 모션 설정을 기록한다.
 
-기존 프로젝트에 브라우저 테스트가 있으면 활용한다. 가벼운 사용자 흐름 검사는 [예제 설정](../examples/browser-check.json)을 복사해 대상 사이트의 경로와 선택자로 바꿔 실행한다.
+기존 프로젝트에 브라우저 테스트가 있으면 활용한다. 가벼운 사용자 흐름 검사는 [예제 설정](../examples/browser-check.json)을 복사해 대상 사이트의 경로와 선택자로 바꿔 실행한다. 설치된 스킬 폴더에 쓸 수 없으면 스킬 폴더를 쓰기 가능한 임시 경로에 복사해 그 경로에서 의존성을 설치한다.
 
 ```sh
 npm --prefix /path/to/portfolio-crew ci
@@ -27,6 +27,8 @@ node /path/to/portfolio-crew/scripts/check-portfolio.mjs --url http://localhost:
 ```
 
 `--baseline`은 선택 사항이다. 함께 실행하면 공통 흐름을 두 버전에서 검사하고 `currentOnly`로 표시한 새 경로는 변경본에서 검사한다. 실행 폴더 아래 대상·화면·흐름별 스크린샷이 생성된다. `--record`를 추가하면 Playwright 동영상도 저장한다. 배포 후에는 공개 주소를 새 브라우저 세션에서 열어 제출 링크와 파일 다운로드를 확인한다.
+
+이미 설치된 Chrome을 사용하려면 Chromium 설치를 생략하고 검사 명령에 `--channel chrome`을 추가한다. 이 환경에서 녹화하려면 `npm --prefix /path/to/portfolio-crew exec -- playwright install ffmpeg`로 녹화에 필요한 도구를 설치한다.
 
 ### 브라우저 검사 설정
 
@@ -42,4 +44,4 @@ node /path/to/portfolio-crew/scripts/check-portfolio.mjs --url http://localhost:
 | `wheel` | `deltaY`만큼 휠 입력을 보낸다. `selector`가 있으면 그 요소 위에서 실행한다. |
 | `back` | 브라우저 방문 기록에서 한 단계 돌아간다. |
 
-검사는 Chromium에서 데스크톱, 터치 모바일, 축소 모션 프로필을 실행한다. 도구가 설치된 Chrome을 사용하려면 `--channel chrome`을 지정한다. 검사 실패는 종료 코드 1로, 설정이나 실행 오류는 종료 코드 2로 표시한다.
+검사는 데스크톱, 터치 모바일, 축소 모션 프로필을 실행한다. 검사 실패는 종료 코드 1로, 설정이나 실행 오류는 종료 코드 2로 표시한다.
