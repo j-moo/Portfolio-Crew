@@ -1,4 +1,4 @@
 interface:
   display_name: "Portfolio Crew"
-  short_description: "프로젝트 기록으로 포트폴리오를 기획·제작하고 브라우저에서 검수합니다"
-  default_prompt: "$portfolio-crew로 프로젝트 기록을 검토하고 대표 상세와 첫 화면부터 제작해 주세요."
+  short_description: "개발자 포트폴리오를 새로 만들거나 기존 사이트에서 필요한 부분을 수정합니다"
+  default_prompt: "$portfolio-crew 백엔드 개발자 지원용 포트폴리오를 만들고 싶어요. 제가 맡은 API 설계와 장애 해결 과정, 테스트 결과를 보여주고 싶어요."
