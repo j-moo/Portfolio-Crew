@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>레퍼런스 토너먼트</title>
+  <style>
+    :root {
+      font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      color: #222822;
+      background: #f3f3ed;
+      --line: #d4d9cf;
+      --muted: #535e52;
+      --accent: #345742;
+      --surface: #fff;
+      --stage: #e7eae2;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; }
+    main { width: min(1440px, 100%); margin: auto; padding: clamp(18px, 4vw, 56px); }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(1.65rem, 4vw, 3rem); letter-spacing: -.065em; }
+    h2 { font-size: clamp(1.25rem, 3vw, 1.8rem); letter-spacing: -.04em; }
+    p { line-height: 1.55; }
+    header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 20px; }
+    .muted, .message { color: var(--muted); font-size: .9rem; }
+    header p { margin-top: 4px; }
+    button, input { font: inherit; }
+    button { color: inherit; cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    button:disabled { cursor: default; opacity: .48; }
+    #setup, #result { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: clamp(18px, 4vw, 36px); }
+    #setup p, #result p { margin-top: 8px; }
+    input[type="file"] { display: block; max-width: 100%; margin-top: 16px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    #progress { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .matches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(8px, 2vw, 22px); }
+    .candidate { min-width: 0; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+    .pick { border: 0; padding: 0; display: block; width: 100%; background: transparent; text-align: left; }
+    .pick:focus-visible { outline-offset: -3px; }
+    .pick:hover .candidate-meta { background: #e5eee6; }
+    .picture { display: grid; place-items: center; height: clamp(160px, 54vh, 640px); background: var(--stage); }
+    .picture img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; }
+    .candidate-meta { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; padding: clamp(8px, 1.75vw, 15px); }
+    .slot { display: grid; place-items: center; min-width: 1.65rem; height: 1.65rem; border-radius: 5px; background: var(--accent); color: white; font-weight: 750; }
+    .file-name { overflow-wrap: anywhere; font-size: clamp(.8rem, 2vw, 1rem); font-weight: 650; }
+    .actions { padding: 0 clamp(8px, 1.75vw, 15px) 10px; }
+    .secondary { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; }
+    .message { margin-top: 12px; }
+    .result-box { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    #result-text { flex: 1 1 220px; min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 10px; color: inherit; }
+    #winner-image { display: block; max-width: 100%; max-height: 52vh; margin-top: 16px; object-fit: contain; }
+    #copy { color: white; background: var(--accent); border-color: var(--accent); }
+    dialog { width: min(94vw, 1120px); max-height: 95vh; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+    dialog::backdrop { background: rgb(20 25 20 / .72); }
+    dialog form { display: flex; justify-content: end; margin-bottom: 8px; }
+    dialog img { display: block; max-width: 100%; max-height: 82vh; object-fit: contain; margin: auto; }
+    @media (max-width: 600px) {
+      .picture { height: clamp(155px, 40vh, 390px); }
+      .secondary { padding: 6px 8px; font-size: .81rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>레퍼런스 토너먼트</h1>
+        <p class="muted">각 경기에서 포트폴리오 디자인에 더 가까운 이미지를 고르세요.</p>
+      </div>
+      <button id="undo" class="secondary" type="button" hidden>한 경기 되돌리기</button>
+    </header>
+    <section id="setup" aria-labelledby="setup-title">
+      <h2 id="setup-title">레퍼런스 이미지 선택</h2>
+      <p class="muted">이미지 파일을 여러 장 선택하면 대진이 시작됩니다.</p>
+      <input id="files" type="file" accept="image/*" multiple aria-label="레퍼런스 이미지">
+    </section>
+    <section id="arena" aria-labelledby="progress" hidden>
+      <div class="toolbar">
+        <p id="progress" aria-live="polite"></p>
+        <p class="muted">클릭 또는 키보드 1 / 2</p>
+      </div>
+      <div class="matches">
+        <article class="candidate" data-side="0">
+          <button class="pick" type="button">
+            <span class="picture"><img alt=""></span>
+            <span class="candidate-meta"><span class="slot">1</span><span class="file-name"></span></span>
+          </button>
+          <div class="actions"><button class="zoom secondary" type="button">크게 보기</button></div>
+        </article>
+        <article class="candidate" data-side="1">
+          <button class="pick" type="button">
+            <span class="picture"><img alt=""></span>
+            <span class="candidate-meta"><span class="slot">2</span><span class="file-name"></span></span>
+          </button>
+          <div class="actions"><button class="zoom secondary" type="button">크게 보기</button></div>
+        </article>
+      </div>
+    </section>
+    <section id="result" aria-labelledby="result-title" hidden>
+      <h2 id="result-title" tabindex="-1">최종 레퍼런스</h2>
+      <p class="muted">선택 결과를 복사해 포트폴리오 작업 채팅에 보내세요.</p>
+      <img id="winner-image" alt="선택한 레퍼런스">
+      <div class="result-box">
+        <input id="result-text" readonly aria-label="최종 선택 결과">
+        <button id="copy" class="secondary" type="button">결과 복사</button>
+      </div>
+    </section>
+    <p id="message" class="message" role="status" hidden></p>
+  </main>
+  <dialog id="viewer" aria-label="레퍼런스 원본">
+    <form method="dialog"><button class="secondary">닫기</button></form>
+    <img id="viewer-image" alt="">
+  </dialog>
+  <script id="tournament-data" type="application/json">{"key":"","candidates":[]}</script>
+  <script>
+    (() => {
+      const data = JSON.parse(document.querySelector('#tournament-data').textContent);
+      const setup = document.querySelector('#setup');
+      const arena = document.querySelector('#arena');
+      const result = document.querySelector('#result');
+      const resultText = document.querySelector('#result-text');
+      const progress = document.querySelector('#progress');
+      const undo = document.querySelector('#undo');
+      const viewer = document.querySelector('#viewer');
+      const viewerImage = document.querySelector('#viewer-image');
+      const cards = [...document.querySelectorAll('[data-side]')];
+      const filesInput = document.querySelector('#files');
+      const message = document.querySelector('#message');
+      let candidates = [];
+      let choices = [];
+      let storageKey = '';
+      let current;
+
+      function announce(text) {
+        message.textContent = text;
+        message.hidden = !text;
+      }
+
+      function matchup(entries, votes) {
+        let remaining = entries;
+        let played = 0;
+        const mainSize = 2 ** Math.floor(Math.log2(entries.length));
+        let preliminary = entries.length - mainSize;
+        while (remaining.length > 1) {
+          const matches = preliminary || remaining.length / 2;
+          const next = [];
+          for (let index = 0; index < matches; index++) {
+            const pair = remaining.slice(index * 2, index * 2 + 2);
+            const winner = pair.find(candidate => candidate.id === votes[played]);
+            if (!winner) {
+              const round = preliminary ? '예선' : remaining.length === 2 ? '결승' : `${remaining.length}강`;
+              return { pair, played, round };
+            }
+            next.push(winner);
+            played++;
+          }
+          remaining = next.concat(remaining.slice(matches * 2));
+          preliminary = 0;
+        }
+        return { winner: remaining[0], played };
+      }
+
+      function save() {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(choices));
+        } catch {
+          // The current tab can still run without browser storage.
+        }
+      }
+
+      function begin(entries, key) {
+        candidates = entries;
+        storageKey = `portfolio-crew:tournament:${key}`;
+        choices = [];
+        try {
+          const stored = JSON.parse(localStorage.getItem(storageKey));
+          if (Array.isArray(stored)) choices = stored.slice(0, entries.length - 1);
+        } catch {
+          // Start from the opening match if the browser cannot restore progress.
+        }
+        choices.length = matchup(candidates, choices).played;
+        render();
+      }
+
+      function render(focusWinner = false) {
+        current = matchup(candidates, choices);
+        const winner = current.winner;
+        arena.hidden = Boolean(winner);
+        result.hidden = !winner;
+        undo.hidden = false;
+        undo.disabled = choices.length === 0;
+        if (winner) {
+          document.querySelector('#winner-image').src = winner.src;
+          resultText.value = `최종 레퍼런스 ${winner.id}번 · ${winner.name}`;
+          if (focusWinner) document.querySelector('#result-title').focus();
+          return;
+        }
+        progress.textContent = `${current.round} · ${current.played + 1}/${candidates.length - 1} 경기`;
+        cards.forEach((card, index) => {
+          const candidate = current.pair[index];
+          card.querySelector('img').src = candidate.src;
+          card.querySelector('.file-name').textContent = `${candidate.id}번 · ${candidate.name}`;
+          card.querySelector('.zoom').setAttribute('aria-label', `${candidate.id}번 이미지 크게 보기`);
+        });
+      }
+
+      function choose(index) {
+        const candidate = current?.pair?.[index];
+        if (!candidate) return;
+        choices.push(candidate.id);
+        save();
+        announce('');
+        render(true);
+      }
+
+      cards.forEach((card, index) => {
+        card.querySelector('.pick').addEventListener('click', () => choose(index));
+        card.querySelector('.zoom').addEventListener('click', () => {
+          const candidate = current.pair[index];
+          viewerImage.src = candidate.src;
+          viewerImage.alt = candidate.name;
+          viewer.showModal();
+        });
+      });
+      undo.addEventListener('click', () => {
+        choices.pop();
+        save();
+        announce('');
+        render();
+      });
+      document.addEventListener('keydown', event => {
+        if (event.repeat || event.altKey || event.ctrlKey || event.metaKey || viewer.open ||
+          event.target instanceof HTMLInputElement || !current?.pair) return;
+        if (event.key === '1' || event.key === '2') {
+          event.preventDefault();
+          choose(Number(event.key) - 1);
+        }
+      });
+      document.querySelector('#copy').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(resultText.value);
+          announce('결과를 복사했습니다.');
+        } catch {
+          resultText.focus();
+          resultText.select();
+          announce('선택된 결과를 복사해 작업 채팅에 붙여 넣으세요.');
+        }
+      });
+
+      filesInput.addEventListener('change', async () => {
+        const files = [...filesInput.files];
+        if (!files.length) return;
+        filesInput.disabled = true;
+        const usable = [];
+        for (const [index, file] of files.entries()) {
+          const src = URL.createObjectURL(file);
+          const image = new Image();
+          image.src = src;
+          try {
+            await image.decode();
+            usable.push({ id: String(index + 1), name: file.name, src });
+          } catch {
+            URL.revokeObjectURL(src);
+          }
+        }
+        filesInput.disabled = false;
+        if (!usable.length) {
+          announce('열 수 있는 이미지가 없습니다. 다른 파일을 선택하세요.');
+          return;
+        }
+        setup.hidden = true;
+        const key = JSON.stringify(files.map(file => [file.name, file.size, file.lastModified]));
+        begin(usable, key);
+        announce(usable.length < files.length ? `열 수 있는 이미지 ${usable.length}장으로 진행합니다.` : '');
+      });
+      if (data.candidates.length) {
+        setup.hidden = true;
+        begin(data.candidates, data.key);
+      }
+    })();
+  </script>
+</body>
+</html>
