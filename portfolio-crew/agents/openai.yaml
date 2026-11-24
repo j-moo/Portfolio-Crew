@@ -1,0 +1,4 @@
+interface:
+  display_name: "Portfolio Crew"
+  short_description: "프로젝트 기록으로 포트폴리오를 기획·제작하고 브라우저에서 검수합니다"
+  default_prompt: "$portfolio-crew로 프로젝트 기록을 검토하고 대표 상세와 첫 화면부터 제작해 주세요."

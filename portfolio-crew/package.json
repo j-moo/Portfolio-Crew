@@ -1,0 +1,11 @@
+{
+  "name": "portfolio-crew-qa",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "flows": [
+    {
+      "name": "read-project",
+      "path": "./#projects",
+      "steps": [
+        { "action": "click", "selector": "a[data-project='library']" },
+        { "action": "url", "path": "./projects/library/" },
+        { "action": "text", "selector": "main h1", "text": "도서 예약 서비스" },
+        { "action": "visible", "selector": "[data-project-gallery] img" },
+        { "action": "click", "selector": "[data-development-notes] summary" },
+        { "action": "visible", "selector": "[data-development-notes][open] .note-body" },
+        { "action": "back" },
+        { "action": "url", "path": "./#projects" }
+      ]
+    },
+    {
+      "name": "read-ai-case",
+      "path": "./#projects",
+      "currentOnly": true,
+      "steps": [
+        { "action": "click", "selector": "nav a[href='#ai']" },
+        { "action": "url", "path": "./#ai" },
+        { "action": "text", "selector": "#ai h2", "text": "AI 활용 사례" }
+      ]
+    }
+  ]
+}
